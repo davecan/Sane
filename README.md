@@ -232,6 +232,11 @@ Enumerable(list) _
     .Map("set V_ = new ChainedExample_Class : V_.Data = item_ : V_.Length = len(item_)") _
     .Max("item_.Length")
 ```
+```V_``` is a special instance variable used by the `Map` method to represent the result of the "lambda" expression. `item_` is
+another special instance variable that represents the current item being processed. So in this case, `Map` iterates over each
+item in the list and executes the passed "lambda" expression. The result of `Map` is a new instance of `EnumerableHelper_Class`
+containing a list of `ChainedExample_Class` instances built by the expression. This enumerable is then processed by `Max` to
+return a single value, the maximum length.
 
 ### Debugging Helpers
 
@@ -324,6 +329,42 @@ Public Sub CreatePost
 End Sub
 ```
 
+### Model Validations
+
+Models should expose a `Validator` object which is used by the validation helper methods. For example, when a model declares
+a validation using `ValidateExists Me, "Name", "Name must exist."` the following is what actually happens behind the scenes:
+
+```vb
+Sub ValidateExists(instance, field_name, message)
+    if not IsObject(instance.Validator) then set instance.Validator = new Validator_Class
+    instance.Validator.AddValidation new ExistsValidation_Class.Initialize(instance, field_name, message)
+End Sub
+```
+
+Here `Me` is the domain model instance. The `Validator_Class` is then used (via `YourModel.Validator`) to validate all registered
+validation rules, setting the `Errors` and `HasErrors` fields if errors are found. This is similar to the Observer pattern.
+
+### Numerous Helpers
+
+* `put` wraps `Response.Write` and varies its output based on the passed type, with special output for lists and arrays.
+* `H(string)` HTMLEncodes a string
+* Adapted from Tolerable:
+    * `Assign(target, src)` abstracts away the need to use `set` for objects in cases where we deal with variables of arbitrary type
+    * `Choice(condition, trueval, falseval)` is a more functiony `iif`
+* HTML Helpers
+    * `HTML.FormTag(controller_name, action_name, route_attribs, form_attribs)`
+    * `HTML.TextBox(id, value)`
+    * `HTML.TextArea(id, value, rows, cols)`
+    * `HTML.DropDownList(id, selected_value, list, option_value_field, option_text_field)`
+    * And more, many with `*Ext` variants
+* Cross-Site Request Forgery protection (nonce can be set for whole site or per-form)
+    * In `Edit` action: `HTMLSecurity.SetAntiCSRFToken "ProductEditForm"`
+    * In view: `<%= HTML.Hidden("nonce", HTMLSecurity.GetAntiCSRFToken("ProductEditForm")) %>`
+    * In `EditPost` action: `HTMLSecurity.OnInvalidAntiCsrfTokenRedirectToActionExt "ProductEditForm", Request.Form("nonce"), "Edit", Array("Id", Request.Form("Id"))`
+* Exposed access to current controller/action names: `MVC.ControllerName`, `MVC.ActionName`
+* Redirect via GET or POST: `MVC.RedirectTo(controller_name, action_name)` or `MVC.RedirectToActionPOST(action_name)` with `*Ext` variants
+    * POST generates dynamic client-side form automatically submitted via JQuery
+
 ### "Generally Consistent API"
 
 One idiom used throughout the framework is a workaround for VBScript not allowing method overloads. Generally speaking there are two 
@@ -356,8 +397,6 @@ Public Sub RedirectToExt(controller_name, action_name, params)
     Response.Redirect Routes.UrlTo(controller_name, action_name, params)
 End Sub
 ```
-
-... TODO: List more features ...
 
 ## But... why??
 
