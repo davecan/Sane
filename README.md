@@ -235,4 +235,6 @@ need to develop an application today we would use a modern framework such as .NE
 really just here in case it is helpful to someone else. Plus it was fun to build. :)
 
 ## Thanks
-* To Emmet M. who coincidentally was building a similar MVC framework the same time I was working on this one. Some internals of the
+
+* To Brian Lauber for his excellent [Tolerable library](https://github.com/briandamaged/tolerable) which pushes VBScript far beyond what anyone thought it was capable of. Several years ago I implemented lambdas in VBScript using dynamically built `Proc` and `Func` classes (intending to directly address criticism from [this guy](http://thom.org.uk/2006/02/23/adventures-in-vbscript-volume-i/)) but never published it. Brian pushed the boundaries way beyond that. The `LinkedList_Class` and its iterators are adapted from his work, with his extremely powerful lambda capabilities tailored out to avoid bogging down ASP too much. The framework also adopts some of his coding conventions, such as `_Class` suffixes and the use of lazy-loaded global-scope singleton functions.
+* To Emmet M. who coincidentally was building [a similar MVC framework](http://www.codeproject.com/Articles/585883/Classic-ASP-and-MVC) the same time I was working on this one. Some of the MVC engine internals were inspired by and adapted from his work.
