@@ -1,4 +1,4 @@
-# The friendly Classic ASP framework
+# Sane, the friendly Classic ASP framework
 Sane is a relatively full-featured MVC framework that brings sanity to Classic ASP.
 
 ## Example
