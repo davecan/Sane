@@ -112,7 +112,7 @@ really just here in case it is helpful to someone else. Plus it was fun to build
 # Features
 * Useful Collections
   * LinkedList_Class adapted from the excellent Tolerable library
-  * KVArray, a unique data structure I wish I'd built 15+ years ago that makes dynamic named parameters ridiculously easy
+  * KVArray, a unique data structure that makes dynamic forward-only named parameters ridiculously easy
 * Database Migrations
     `Migration.Do "create table Example_Table (id int not null, name varchar(100) not null)"`
     
