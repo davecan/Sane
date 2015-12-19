@@ -64,7 +64,7 @@ Class OrderRepository_Class
         
         dim list : set list = new LinkedList_Class
         Do until rs.EOF
-            list.Push Automapper.AutoMap(rs, new OrderModel_Class)
+            list.Push Automapper.AutoMap(rs, new OrderModel_Class)      ' keanuwhoa.jpg
             rs.MoveNext
         Loop
         
@@ -233,3 +233,6 @@ This framework was extracted from a real project that was built in this fashion.
 no reason (functionally speaking) that it shouldn't work as a viable application framework. That said, realistically if we
 need to develop an application today we would use a modern framework such as .NET MVC or one of its competitors, so this is
 really just here in case it is helpful to someone else. Plus it was fun to build. :)
+
+## Thanks
+* To Emmet M. who coincidentally was building a similar MVC framework the same time I was working on this one. Some internals of the
