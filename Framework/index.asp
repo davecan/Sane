@@ -1,0 +1,1 @@
+<% Response.Redirect "App/Controllers/Home/HomeController.asp" %>

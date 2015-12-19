@@ -1,0 +1,68 @@
+/*
+.warning
+{
+        BACKGROUND-COLOR: gold
+}
+.error
+{
+        BACKGROUND-COLOR: indianred
+}
+.success
+{
+        BACKGROUND-COLOR: #33cc33
+}
+
+BODY
+{
+        FONT-SIZE: 10px
+        FONT-FAMILY: Verdana;
+        BACKGROUND-COLOR: lightskyblue
+}
+TABLE
+{
+        FONT-SIZE: 10px
+}
+FORM
+{
+        FONT-SIZE: 10px
+}
+SELECT
+{
+        FONT-SIZE: 10px
+}
+INPUT
+{
+        FONT-SIZE: 10px
+}
+*/
+
+
+
+/*----------------------------------------------------------------------------------------------------------------------
+    CUSTOMIZATIONS
+----------------------------------------------------------------------------------------------------------------------*/
+
+body { padding: 20px; font-family: calibri; font-size: 14pt; color: #333; background-color: #fcfcfc; }
+
+table.Form { width: auto; }
+table.Form th,
+table.Form td { padding-right: 20px; }
+table.Form input.Submit { height: 40px; }
+
+table.Results { width: 98%; }
+table.Results th, 
+table.Results td { padding: 5px; vertical-align: top; }
+
+table.Results th.expected,
+table.Results th.actual     { text-align: right; color: #c00; }
+
+table.Results td.expected,
+table.Results td.actual    { font-family: consolas; }
+
+table.Results span.left-delim,
+table.Results span.right-delim { font-weight: bold; color: #c00; }
+
+
+.warning { background-color: #feedab; color: #333; }
+.error     { background-color: #ffb3b3; color: darkred; }
+.success { background-color: #dbf0b8; color: darkgreen; }
