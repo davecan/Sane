@@ -57,19 +57,29 @@ End Class
 Domain models can be built by converting an ADO Recordset into a linked list of domain models via Automapper-style functions:
 
 ```vb
-'Inside OrderRepository_Class
-Public Function GetAll()
-    dim sql : sql = "select OrderNumber, DateOrdered, CustomerName from Orders"
-    dim rs : set rs = DAL.Query(sql, empty)  'optional second parameter, can be single scalar or array of binds
-    
-    dim list : set list = new LinkedList_Class
-    Do until rs.EOF
-        list.Push Automapper.AutoMap(rs, new OrderModel_Class)
-        rs.MoveNext
-    Loop
-    
-    set GetAll = list
-    Destroy rs        ' no passing around recordsets, no open connections to deal with
+Class OrderRepository_Class
+    Public Function GetAll()
+        dim sql : sql = "select OrderNumber, DateOrdered, CustomerName from Orders"
+        dim rs : set rs = DAL.Query(sql, empty)  'optional second parameter, can be single scalar or array of binds
+        
+        dim list : set list = new LinkedList_Class
+        Do until rs.EOF
+            list.Push Automapper.AutoMap(rs, new OrderModel_Class)
+            rs.MoveNext
+        Loop
+        
+        set GetAll = list
+        Destroy rs        ' no passing around recordsets, no open connections to deal with
+    End Function
+End Class
+
+' Convenience wrapper lazy-loads the repository
+dim OrderRepository__Singleton
+Function OrderRepository()
+    If IsEmpty(OrderRepository__Singleton) then
+        set OrderRepository__Singleton = new OrderRepository_Class
+    End If
+    set OrderRepository = OrderRepository__Singleton
 End Function
 ```
 
