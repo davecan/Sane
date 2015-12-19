@@ -102,6 +102,16 @@ Automapper.DynMap(rs, new OrderModel_Class, _
                         "target.LikedOrder = src.CustomerWasHappy"))
 ```
 
+Because both source and target can be any object with instance methods this is a very useful way to manage model binding in CRUD 
+methods, for example:
+
+```vb
+Public Sub CreatePost
+    dim new_product_model : set new_product_model = Automapper.AutoMap(Request.Form, new ProductModel_Class)
+    ... etc
+End Sub
+```
+
 ### Controllers
 
 ```asp
@@ -198,11 +208,23 @@ structure.
 </table>
 ```
 
-## Features
-### Useful Collections
-* LinkedList_Class adapted from the excellent Tolerable library to work in an ASP environment
+## Other Features
 
-* `Enumerable(list)` builder that provides chainable lambda-style calls on a list. From the unit tests:
+### Database Class
+
+Wraps connection details and access to the database. In addition to the examples already shown it can also handle:
+
+* Execution of SQL without return values: `DAL.Execute "delete from Orders where OrderId = ?", id`
+* Paged queries: `set rs = DAL.PagedQuery(sql, params, per_page, page_num)` 
+    * Note: This uses recordset paging, you must implement your own server-side paging if needed.
+* Transactions: `DAL.BeginTransaction`, `DAL.CommitTransaction`, and `DAL.RollbackTransaction`
+
+The class also automatically closes and destroys the wrapped connection via the `Class_Terminate` method which is called when the
+class is ready for destruction.
+
+### Enumerable Builder
+
+Provides chainable lambda-style calls on a list. From the unit tests:
 
 ```vb
 Enumerable(list) _
@@ -211,7 +233,129 @@ Enumerable(list) _
     .Max("item_.Length")
 ```
 
-* KVArray, a unique data structure that makes dynamic forward-only named parameters ridiculously easy, and can be passed around through the session / etc unlike Dictionary COM objects which are apartment-threaded
+### Debugging Helpers
+
+Since the use of step-through debugging is not always possible in Classic ASP, these make debugging and tracing much easier.
+
+`Dump` outputs objects in a meaningful way:
+
+```vb
+dim a : a = GetSomeArray()
+Dump a
+```
+
+Output:
+
+```
+[Array:
+        0 => «elt1»
+        1 => «elt2»
+        2 => «elt3»
+]
+```
+
+It even handles custom classes, using the `Class_Get_Properties` field:
+
+`Dump Product`
+
+Output:
+
+```
+{ProductModel_Class: 
+            Id : Long => «17», 
+            Name : String => «Alice Mutton», 
+            CategoryId : Long => «6», 
+            Category : Empty => «», 
+            CategoryName : String => «Meat/Poultry», 
+            SupplierId : Long => «7», 
+            Supplier : Empty => «», 
+            SupplierName : String => «Pavlova, Ltd.», 
+            UnitPrice : Currency => «250», 
+            UnitsInStock : Integer => «23», 
+            UnitsOnOrder : Integer => «0», 
+            ReorderLevel : Integer => «0», 
+            Discontinued : Boolean => «True»
+}
+```
+
+`quit` immediately halts execution. `die "some message"` halts execution and outputs an "some message" to the screen.
+
+### Rails-style "Flash" Messages
+
+`Flash.Success = "Product updated."`, `Flash.Errors = model.Validator.Errors`, etc.
+
+### Form Serialization
+
+If errors are encountered when creating a model we should be able to re-display the form with the user's content still filled in. To
+simplify this the framework provides the `FormCache` object which serializes/deserializes form data via the session.
+
+For example, in a `Create` action we can have:
+
+```vb
+Public Sub Create
+    dim form_params : set form_params = FormCache.DeserializeForm("NewProduct")
+    If Not form_params Is Nothing then
+        set Model = Automapper.AutoMap(form_params, new Create_ViewModel_Class)
+    Else
+        set Model = new Create_ViewModel_Class
+    End If
+    
+    %> <!--#include file="../../Views/Products/Create.asp"--> <%
+End Sub
+```
+
+And in ```CreatePost```:
+
+```vb
+Public Sub CreatePost
+    dim new_product_model : set new_product_model = Automapper.AutoMap(Request.Form, new ProductModel_Class)
+    new_product_model.Validator.Validate
+    
+    If new_product_model.Validator.HasErrors then
+        FormCache.SerializeForm "NewProduct", Request.Form
+        Flash.Errors = new_product_model.Validator.Errors
+        MVC.RedirectToAction "Create"
+    Else
+        ProductRepository.AddNew new_product_model
+        FormCache.ClearForm "NewProduct"
+        Flash.Success = "Product added."
+        MVC.RedirectToAction "Index"
+    End If
+End Sub
+```
+
+### "Generally Consistent API"
+
+One idiom used throughout the framework is a workaround for VBScript not allowing method overloads. Generally speaking there are two 
+cases, one where the method is full-featured with several parameters and one where the method signature is simplified. This is handled
+by having the full-featured method append `Ext` to the end to denote it as an "extended" version of the simplified method. 
+
+For example, this is from the `HTML_Helper_Class`:
+
+```vb
+Public Function LinkTo(link_text, controller_name, action_name)
+    LinkTo = LinkToExt(link_text, controller_name, action_name, empty, empty)
+End Function
+
+Public Function LinkToExt(link_text, controller_name, action_name, params_array, attribs_array)
+    LinkToExt = "<a href='" & Encode(Routes.UrlTo(controller_name, action_name, params_array)) & "'" &_ 
+                HtmlAttribs(attribs_array) & ">" & link_text & "</a>" & vbCR
+End Function
+```
+
+And this is from the `MVC_Dispatcher_Class`:
+
+```vb
+Public Sub RedirectTo(controller_name, action_name)
+    RedirectToExt controller_name, action_name, empty
+End Sub
+
+' Redirects the browser to the specified action on the specified controller with the specified querystring parameters.
+' params is a KVArray of querystring parameters.
+Public Sub RedirectToExt(controller_name, action_name, params)
+    Response.Redirect Routes.UrlTo(controller_name, action_name, params)
+End Sub
+```
 
 ... TODO: List more features ...
 
