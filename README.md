@@ -283,7 +283,8 @@ Output:
 }
 ```
 
-`quit` immediately halts execution. `die "some message"` halts execution and outputs an "some message" to the screen.
+`quit` immediately halts execution. `die "some message"` halts execution and outputs an "some message" to the screen. `trace "text"` 
+and `comment "text"` both write HTML comments containing "text", useful for tracing behind the scenes without disrupting layout.
 
 ### Rails-style "Flash" Messages
 
