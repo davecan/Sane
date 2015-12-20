@@ -102,7 +102,8 @@ The use of the `empty` keyword is a common approach taken by this framework. A c
 allow optional parameters. While this is technically true it is easy to work around, yet virtually every example found online
 involves passing empty strings, or null values, or a similar approach. Using the built-in VBScript keyword `empty` is a semantically-meaningful way to handle optional parameters, making it clear that we specifically intended to ignore the optional parameter. In this case the `DAL.Query` method accepts two parameters, the SQL query and a second parameter containing bind values. The second parameter can be either a single value as in `DAL.Query("select a from b where a = ?", "foo")` or an array of binds e.g. 
 `DAL.Query("select a from b where a = ? and c = ?", Array("foo", "bar")`. In this example the `DAL` variable is simply an instance
-of the `Database_Class` from `lib.Data.asp`.
+of the `Database_Class` from `lib.Data.asp`. In the original project the DAL was a custom class that acted as an entry point for
+a set of lazy-loaded `Database_Class` instances, allowing data to be shared and moved between databases during the workflow.
 
 The `Automapper` object is a VBScript class that attempts to map each field in the source object to a corresponding field in the
 target object. The source object can be a recordset or a custom class. The function can map to a new or existing object. The
