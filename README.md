@@ -367,6 +367,33 @@ Output:
 }
 ```
 
+And it handles nesting, as seen here when a call to `Dump Model` was placed in the `Show` action of `OrdersController.asp` in the Demo:
+
+```vb
+{OrderModel_Class: 
+            Id : Long => «11074», 
+            CustomerId : String => «SIMOB», 
+            OrderDate : Date => «5/6/1998», 
+            RequiredDate : Date => «6/3/1998», 
+            ShippedDate : Null => «», 
+            ShipName : String => «Simons bistro», 
+            ShipAddress : String => «Vinbæltet 34», 
+            ShipCity : String => «Kobenhavn», 
+            ShipCountry : String => «Denmark», 
+         LineItems : LinkedList_Class => 
+                [List:
+                        1 => 
+                                {OrderLineItemModel_Class: 
+                                            ProductId : Long => «16», 
+                                            ProductName : String => «Pavlova», 
+                                            UnitPrice : Currency => «17.45», 
+                                            Quantity : Integer => «14», 
+                                            Discount : Single => «0.05», 
+                                            ExtendedPrice : Currency => «232.09»
+                                }
+                ]}
+```
+
 `quit` immediately halts execution. `die "some message"` halts execution and outputs an "some message" to the screen. `trace "text"` 
 and `comment "text"` both write HTML comments containing "text", useful for tracing behind the scenes without disrupting layout.
 
