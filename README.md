@@ -247,9 +247,14 @@ In essence you can imagine a `KVArray` as a way to use `System.Object` style cal
 Because it is `#include`d into the controller action, the view has full access to the controller's `Model` instance. Here it accesses
 the `Order` property of the view model and iterates over the `LineItems` property (which would be a `LinkedList_Class` instance built
 inside the repository) to build the view. Using view models you can create rich views that are not tied to a specific recordset
-structure.
+structure. See the `HomeController` in the demo for an example view model that contains four separate lists of domain objects to
+build a dashboard summary view.
+
+The `MVC.RequireModel` method provides the ability to strongly-type the view, mimicking the `@model` directive in .NET MVC.
 
 ```asp
+<% MVC.RequireModel Model, "Show_ViewModel_Class" %>
+
 <h2>Order Summary</h2>
 
 <div class="row">
