@@ -11,6 +11,18 @@ folder location, but that location is somewhat configurable.
 
 ![alt text](http://www.gunaxin.com/wp-content/uploads/2010/02/FMJ-M14-560x420.jpg "")
 
+## Installation
+
+**Dependency:** The demo was built against the Microsoft Northwind sample database. [Download the SQL Server BAK file here](https://northwinddatabase.codeplex.com/) and restore it into a SQL Server instance. [SQL Scripts and MDF file are also available](http://www.microsoft.com/en-us/download/details.aspx?id=23654).
+
+1. Download the release to your directory of choice.
+2. In Visual Studio, `File -> Open Web Site...` and select the `Demo` directory
+3. Open file `App\DAL\lib.DAL.asp` and modify the connection string to point to your database.
+4. Start the website (F5 or CTRL-F5) at `/index.asp`
+
+The file `index.asp` will automatically redirect you to the Home controller, `/App/Controllers/HomeController.asp` and will load the
+default action, `Index`.
+
 ## Features
 
 A few of the features below have corresponding ASPUnit tests. Find them in the [Tests directory](Tests).
@@ -41,6 +53,8 @@ The real-world project from which the framework was extracted contained approxim
 for versioning the DB during development.
 
 *Note: the migrations web interface is very basic and non-pretty*
+
+**Dependency:** To use the migrations feature you must first create the table `meta_migrations` using the script [`! Create Migrations Table.sql`](Sane/Framework/Data/Migrations/! Create Migrations Table.sql).
 
 ### Domain Models
 
