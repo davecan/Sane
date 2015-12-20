@@ -13,6 +13,8 @@ folder location, but that location is somewhat configurable.
 
 ## Features
 
+A few of the features below have corresponding ASPUnit tests. Find them in the [Tests directory](Tests).
+
 ### Database Migrations
 
 ```vb
@@ -173,6 +175,52 @@ throughout the framework. For example, here are two `KVArray`s used in one of th
 Behind the scenes this method builds an anchor that routes to the correct controller/action combo, passes the specified parameters
 via the querystring, and has the specified HTML `class` and `id` attributes. `KVArray`s are easily handled thanks to a few helper
 methods such as `KeyVal` and `KVUnzip`.
+
+#### More about KVArrays
+
+The `KVArray` data structure is fundamental to much of the framework and greatly simplifies coding. Fundamentally a `KVArray` is nothing more than a standard VBScript array that should always be consumed in groups of two. In other words, to build a `KVArray` we just need to build an array with element 0 being the first key and element 1 its value, element 2 the second key and element 3 its value, etc.
+
+For example:
+
+```vb
+dim kvarray : kvarray = Array(6)
+'Element 1: Name = Bob
+kvarray(0) = "Name"
+kvarray(1) = "Bob"
+'Element 2: Age = 35
+kvarray(2) = "Age"
+kvarray(3) = 35
+'Element 3: FavoriteColor = Blue
+kvarray(4) = "FavoriteColor"
+kvarray(5) = "Blue"
+```
+
+To iterate over this array step by 2 and use `KeyVal` to get the current key and value:
+
+```vb
+dim idx, the_key, the_val
+For idx = 0 to UBound(kvarray) step 2
+    KeyVal kvarray, idx, the_key, the_val
+Next
+```
+
+On each iteration, `the_key` will contain the current key (e.g. "Name", "Age", or "FavoriteColor") and `the_val` will contain the key's corresponding value.
+
+**But why not use a Dictionary?**
+
+Dictionaries are great, but they are COM components and were at least historically expensive to instantiate and because of threading could not be placed in the session. Plus they are cumbersome to work with directly and there is no easy way to instantiate them inline with a dynamic number of parameters. The `KVArray` allows us to very naturally write code like the `LinkToExt` example above, and also create generic repository `Find` methods that can be used like this:
+
+```vb
+set expensive_products_starting_with_C = ProductRepository.Find( _
+    array("name like ?", "C%", "price > ?", expensive_price) _
+)
+
+set cheap_products_ending_with_Z = ProductRepository.Find( _
+    array("name like ?", "%Z", "price < ?", cheap_price) _
+)
+```
+
+There are examples of this in the demo repositories, where `KVUnzip` is also used very effectively to help easily build the sql `where` clause.
 
 ### Views
 
