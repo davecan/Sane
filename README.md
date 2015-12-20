@@ -1,7 +1,17 @@
 # Sane, the friendly Classic ASP framework
-Sane is a relatively full-featured MVC framework that brings sanity to Classic ASP.
+Sane is a relatively full-featured MVC framework that brings sanity to Classic ASP. It has some similarities in style to both .NET
+MVC and Rails, but doesn't exactly resemble either one. It is opinionated in that it assumes controllers will exist in a specific
+folder location, but that location is somewhat configurable.
 
-## Example
+*Note:* This framework was extracted from a real-world internal workflow routing project, so it has a few rough edges.
+
+**But aren't there other MVC-style frameworks?**
+
+"There are many like it, but this one is mine."
+
+![alt text](http://www.gunaxin.com/wp-content/uploads/2010/02/FMJ-M14-560x420.jpg "")
+
+## Features
 
 ### Database Migrations
 
@@ -54,7 +64,7 @@ End Class
 
 ### Domain Repositories
 
-Domain models can be built by converting an ADO Recordset into a linked list of domain models via Automapper-style functions:
+Domain models can be built by converting an ADO Recordset into a linked list of domain models via Automapper-style transforms: 
 
 ```vb
 Class OrderRepository_Class
@@ -208,14 +218,13 @@ structure.
 </table>
 ```
 
-## Other Features
-
 ### Database Class
 
 Wraps connection details and access to the database. In addition to the examples already shown it can also handle:
 
 * Execution of SQL without return values: `DAL.Execute "delete from Orders where OrderId = ?", id`
 * Paged queries: `set rs = DAL.PagedQuery(sql, params, per_page, page_num)` 
+    * See the demo [ProductsController.asp](Demo/App/Controllers/Products/ProductsController.asp) for a usage example
     * Note: This uses recordset paging, you must implement your own server-side paging if needed.
 * Transactions: `DAL.BeginTransaction`, `DAL.CommitTransaction`, and `DAL.RollbackTransaction`
 
@@ -332,8 +341,22 @@ End Sub
 
 ### Model Validations
 
-Models should expose a `Validator` object which is used by the validation helper methods. For example, when a model declares
-a validation using `ValidateExists Me, "Name", "Name must exist."` the following is what actually happens behind the scenes:
+Validate models by calling the appropriate `Validate*` helper method from within the model's `Class_Initialize` constructor:
+
+```vb
+Private Sub Class_Initialize
+    ValidateExists      Me, "Name", "Name must exist."
+    ValidateMaxLength   Me, "Name", 10, "Name cannot be more than 10 characters long."
+    ValidateMinLength   Me, "Name", 2,  "Name cannot be less than 2 characters long."
+    ValidateNumeric     Me, "Quantity", "Quantity must be numeric."
+    ValidatePattern     Me, "Email", "[\w-]+@([\w-]+\.)+[\w-]+", "E-mail format is invalid."
+End Sub
+```
+
+Currently only `ValidateExists`, `ValidateMinLength`, `ValidateMaxLength`, `ValidateNumeric`, and `ValidatePattern` are included.
+What these helper methods actually do is create a new instance of the corresponding validation class and attach it to the model's
+`Validator` property. For example, when a model declares a validation using `ValidateExists Me, "Name", "Name must exist."` the
+following is what actually happens behind the scenes:
 
 ```vb
 Sub ValidateExists(instance, field_name, message)
@@ -344,6 +367,10 @@ End Sub
 
 Here `Me` is the domain model instance. The `Validator_Class` is then used (via `YourModel.Validator`) to validate all registered
 validation rules, setting the `Errors` and `HasErrors` fields if errors are found. This is similar to the Observer pattern.
+
+Adding new validations is easy, just add a new validation class and helper `Sub`. For example, to add a validation that requires
+that a string start with the letter "A" you would create a `StartsWithLetterAValidation_Class` and helper method 
+`Sub ValidateStartsWithA(instance, field_name, message)`, then call it via `ValidateStartsWithA Me, "MyField", "Field must start with A."`
 
 ### Numerous Helpers
 
