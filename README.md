@@ -468,7 +468,9 @@ End Sub
 ```
 
 Here `Me` is the domain model instance. The `Validator_Class` is then used (via `YourModel.Validator`) to validate all registered
-validation rules, setting the `Errors` and `HasErrors` fields if errors are found. This is similar to the Observer pattern.
+validation rules, setting the `Errors` and `HasErrors` fields if errors are found. This is similar to the Observer pattern. The
+reason we pass `Me` is because this allows us to have a conveniently-worded method for each validation that has strong semantic
+meaning, e.g. `ValidateExists`. It takes a bit of code-jutsu but its worth it.
 
 Adding new validations is easy, just add a new validation class and helper `Sub`. For example, to add a validation that requires
 that a string start with the letter "A" you would create a `StartsWithLetterAValidation_Class` and helper method 
