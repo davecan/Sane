@@ -101,7 +101,9 @@ Class DataDumper_Class
     End Sub
     
     Private Sub DumpIt(V)
-        If Instr(Typename(V), "_Class") > 0 then 
+        If Typename(V) = "LinkedList_Class" then
+            DumpList V
+        ElseIf Instr(Typename(V), "_Class") > 0 then 
             DumpClass V
         ElseIf Typename(V) = "Variant()" then
             DumpArray V
@@ -110,6 +112,26 @@ Class DataDumper_Class
         Else
             put "&laquo;" & H(V) & "&raquo;" 
         End If
+    End Sub
+
+    Private Sub DumpList(V)
+        Indent
+        dim it : set it = V.Iterator
+        dim item
+        dim i : i = 1
+        put_
+        puti "[List:" & vbCR
+        While it.HasNext
+            Indent
+                set item = it.GetNext()
+                puti i & " => "
+                DumpIt item
+                put_
+            Dedent
+            i = i + 1
+        Wend
+        puti "]"
+        Dedent
     End Sub
     
     Private Sub DumpArray(V)
@@ -143,7 +165,10 @@ Class DataDumper_Class
                         Execute "Assign the_property, C." & C.Class_Get_Properties(i)
                         'put "property_name: " & property_name & " (" & typename(the_property) & ")" & vbCR
                         
-                        If InStr(typename(the_property), "_Class") then
+                        If typename(the_property) = "LinkedList_Class" then
+                            puti " " & property_name & " : LinkedList_Class => "
+                            DumpList(the_property)
+                        ElseIf InStr(typename(the_property), "_Class") then
                             puti " " & property_name & " : " & typename(the_property) & " => "
                             DumpClass(the_property)
                         Else
