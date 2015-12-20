@@ -32,7 +32,7 @@ End Class
 Migrations.Add "Migration_01_Create_Orders_Table"
 ```
 
-Migrations can be stepped up and down via web interface located at `migrate.asp`. `Migration.Do` executes SQL commands. Migrations are processed in the order loaded. Recommend following a structured naming scheme as shown above for easy ordering. There are a few special commands, such as
+Migrations can be stepped up and down via web interface located at [`migrate.asp`](Framework/Data/Migrations/migrate.asp). `Migration.Do` executes SQL commands. Migrations are processed in the order loaded. Recommend following a structured naming scheme as shown above for easy ordering. There are a few special commands, such as
 `Migration.Irreversible` that let you stop a down migration from proceeding, etc.
 
 *Note: the migrations web interface is very basic and non-pretty*
@@ -64,7 +64,7 @@ End Class
 
 ### Domain Repositories
 
-Domain models can be built by converting an ADO Recordset into a linked list of domain models via Automapper-style transforms: 
+Domain models can be built by converting an ADO Recordset into a linked list of domain models via Automapper-style transforms. [Say Whaaat?](https://www.youtube.com/watch?v=bdxVcv6M6kE&t=2)
 
 ```vb
 Class OrderRepository_Class
