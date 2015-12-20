@@ -89,7 +89,7 @@ Domain models can be built by converting an ADO Recordset into a linked list of 
 Class OrderRepository_Class
     Public Function GetAll()
         dim sql : sql = "select OrderNumber, DateOrdered, CustomerName from Orders"
-        dim rs : set rs = DAL.Query(sql, empty)  'optional second parameter, can be single scalar or array of binds
+        dim rs : set rs = DAL.Query(sql, empty)  'optional second parameter, can be scalar or array of binds
         
         dim list : set list = new LinkedList_Class
         Do until rs.EOF
@@ -114,8 +114,10 @@ End Function
 
 The use of the `empty` keyword is a common approach taken by this framework. A common complaint of VBScript is that it does not
 allow optional parameters. While this is technically true it is easy to work around, yet virtually every example found online
-involves passing empty strings, or null values, or a similar approach. Using the built-in VBScript keyword `empty` is a semantically-meaningful way to handle optional parameters, making it clear that we specifically intended to ignore the optional parameter. In this case the `DAL.Query` method accepts two parameters, the SQL query and a second parameter containing bind values. The second parameter can be either a single value as in `DAL.Query("select a from b where a = ?", "foo")` or an array of binds e.g. 
-`DAL.Query("select a from b where a = ? and c = ?", Array("foo", "bar")`. In this example the `DAL` variable is simply an instance
+involves passing empty strings, or null values, or a similar approach. Using the built-in VBScript keyword `empty` is a semantically-meaningful way to handle optional parameters, making it clear that we specifically intended to ignore the optional parameter. In this case the `DAL.Query` method accepts two parameters, the SQL query and an optional second parameter containing bind values. The second parameter can be either a single value as in `DAL.Query("select a from b where a = ?", "foo")` or an array of binds e.g. 
+`DAL.Query("select a from b where a = ? and c = ?", Array("foo", "bar")`. In this case it is explicitly ignored since there are no bind variables in the SQL.
+
+In this example the `DAL` variable is simply an instance
 of the `Database_Class` from `lib.Data.asp`. In the original project the DAL was a custom class that acted as an entry point for
 a set of lazy-loaded `Database_Class` instances, allowing data to be shared and moved between databases during the workflow.
 
