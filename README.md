@@ -37,6 +37,9 @@ Migrations.Add "Migration_01_Create_Orders_Table"
 Migrations can be stepped up and down via web interface located at [`migrate.asp`](Framework/Data/Migrations/migrate.asp). `Migration.Do` executes SQL commands. Migrations are processed in the order loaded. Recommend following a structured naming scheme as shown above for easy ordering. There are a few special commands, such as
 `Migration.Irreversible` that let you stop a down migration from proceeding, etc.
 
+The real-world project from which the framework was extracted contained approximately 3 dozen migrations, so it worked very well
+for versioning the DB during development.
+
 *Note: the migrations web interface is very basic and non-pretty*
 
 ### Domain Models
