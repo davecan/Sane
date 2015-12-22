@@ -228,7 +228,9 @@ On each iteration, `the_key` will contain the current key (e.g. "Name", "Age", o
 
 **But why not use a Dictionary?**
 
-Dictionaries are great, but they are COM components and were at least historically expensive to instantiate and because of threading could not be placed in the session. Plus they are cumbersome to work with directly and there is no easy way to instantiate them inline with a dynamic number of parameters. The `KVArray` allows us to very naturally write code like the `LinkToExt` example above, and also create generic repository `Find` methods that can be used like this:
+Dictionaries are great, but they are COM components and were at least historically expensive to instantiate and [because of threading should not be placed in the session](https://msdn.microsoft.com/en-us/library/ms972335.aspx#asptips_topic5). They are also cumbersome to work with for the use cases in this framework and there is no easy way to instantiate them inline with a dynamic number of parameters.
+
+What we actually need is a fast, forward-only key-value data structure that allows us to iterate over the values and pluck out each key and value to build something like an HTML tag with arbitrary attributes or SQL `where` clause with arbitrary columns, not fast lookup of individual keys. So we need a hybrid of the array and dictionary that meets our specific needs and allows inline declaration of an arbitrary number of parameters. The `KVArray` allows us to very naturally write code like the `LinkToExt` example above, and also create generic repository `Find` methods that can be used like this:
 
 ```vb
 set expensive_products_starting_with_C = ProductRepository.Find( _
