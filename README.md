@@ -1,4 +1,4 @@
-# Sane, the friendly Classic ASP framework
+# Sane, the friendly Classic ASP MVC framework
 Sane is a relatively full-featured MVC framework that brings sanity to Classic ASP. It has some similarities in style to both .NET
 MVC and Rails, but doesn't exactly resemble either one. It is opinionated in that it assumes controllers will exist in a specific
 folder location, but that location is somewhat configurable.
@@ -534,7 +534,7 @@ End Sub
 
 ## But... why??
 
-Mostly to prove it can be done. The vast majority of developers hate on VBScript and Classic ASP, mostly with good reason.
+Mostly because it was an interesting project that pushes the limits of Classic ASP. The vast majority of developers hate on VBScript and Classic ASP, mostly with good reason.
 Many of the issues that plague Classic ASP stem from the constraints of the time in which it was developed, the mid-1990s.
 Developers were unable to use what today are considered fundamental practices (widely using classes, etc) because the
 language was not designed to execute in a manner we would call "fast" and using these practices would cause the application
