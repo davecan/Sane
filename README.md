@@ -254,15 +254,29 @@ On each iteration, `the_key` will contain the current key (e.g. "Name", "Age", o
 
 Dictionaries are great, but they are COM components and were at least historically expensive to instantiate and [because of threading should not be placed in the session](https://msdn.microsoft.com/en-us/library/ms972335.aspx#asptips_topic5). They are also cumbersome to work with for the use cases in this framework and there is no easy way to instantiate them inline with a dynamic number of parameters.
 
-What we actually need is a fast, forward-only key-value data structure that allows us to iterate over the values and pluck out each key and value to build something like an HTML tag with arbitrary attributes or SQL `where` clause with arbitrary columns, not fast lookup of individual keys. So we need a hybrid of the array and dictionary that meets our specific needs and allows inline declaration of an arbitrary number of parameters. The `KVArray` allows us to very naturally write code like the `LinkToExt` example above, and also create generic repository `Find` methods that can be used like this:
+What we actually need is a fast, forward-only key-value data structure that allows us to iterate over the values and pluck out each key and value to build something like an HTML tag with arbitrary attributes or SQL `where` clause with arbitrary columns, not fast lookup of individual keys. So we need a hybrid of the array and dictionary that meets our specific needs and allows inline declaration of an arbitrary number of parameters. The `KVArray` allows us to very naturally write code like the `LinkToExt` example above, or manually building URLs using `Routes.UrlTo()`:
+
+```asp
+<%
+<a href="<%= Routes.UrlTo("Users", "Edit", array("Id", user.Id)) %>">
+    <i class="glyphicon glyphicon-user"></a>
+</a>
+%>
+```
+
+We can also create generic repository `Find` methods that can be used like this:
 
 ```vb
 set expensive_products_starting_with_C = ProductRepository.Find( _
-    array("name like ?", "C%", "price > ?", expensive_price) _
+    array("name like ?", "C%", _
+          "price > ?", expensive_price _
+    ) _
 )
 
 set cheap_products_ending_with_Z = ProductRepository.Find( _
-    array("name like ?", "%Z", "price < ?", cheap_price) _
+    array("name like ?", "%Z", _
+          "price < ?", cheap_price _
+    ) _
 )
 ```
 
