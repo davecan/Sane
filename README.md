@@ -1,7 +1,15 @@
-# Sane, the friendly Classic ASP MVC framework
+# Sane, developer-friendly Classic ASP MVC
 Sane is a relatively full-featured MVC framework that brings sanity to Classic ASP. It has some similarities in style to both .NET
 MVC and Rails, but doesn't exactly resemble either one. It is opinionated in that it assumes controllers will exist in a specific
 folder location, but that location is somewhat configurable.
+
+Major features distinguishing this framework include:
+
+* Automapper functionality, allowing mapping recordsets to domain objects (and objects to objects etc)
+* Extensive use of linked lists and iterators
+* Enumerable methods like `All/Any`, `Min/Max`, `Map`, and `Where`
+* Database migrations with `Up` and `Down` steppable migrations
+* Chocolate gravy
 
 *Note:* This framework was extracted from a real-world internal workflow routing project, so it has a few rough edges.
 
