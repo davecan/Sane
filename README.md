@@ -1,4 +1,4 @@
-# Sane, developer-friendly Classic ASP MVC
+# Sane, the developer-friendly Classic ASP MVC framework
 Sane is a relatively full-featured MVC framework that brings sanity to Classic ASP. It has some similarities in style to both .NET
 MVC and Rails, but doesn't exactly resemble either one. It is opinionated in that it assumes controllers will exist in a specific
 folder location, but that location is somewhat configurable.
