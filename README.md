@@ -208,6 +208,8 @@ methods such as `KeyVal` and `KVUnzip`.
 
 The `KVArray` data structure is fundamental to much of the framework and greatly simplifies coding. Fundamentally a `KVArray` is nothing more than a standard VBScript array that should always be consumed in groups of two. In other words, to build a `KVArray` we just need to build an array with element 0 being the first key and element 1 its value, element 2 the second key and element 3 its value, etc.
 
+In essence you can imagine a `KVArray` as a way to use `System.Object` style calls as is done in .NET's `Html.ActionLink`.
+
 For example:
 
 ```vb
@@ -280,9 +282,26 @@ set cheap_products_ending_with_Z = ProductRepository.Find( _
 )
 ```
 
-There are examples of this in the demo repositories, where `KVUnzip` is also used very effectively to help easily build the sql `where` clause.
+There are examples of this in the demo repositories, where `KVUnzip` is also used very effectively to help easily build the sql `where` clause. The below example is from the [`ProductRepository.Find()` method](Demo/App/DomainModels/ProductRepository.asp) which accepts a `KVArray` containing predicate key-value pairs and *unzips* it into two separate arrays that are used to build the query:
 
-In essence you can imagine a `KVArray` as a way to use `System.Object` style calls as is done in .NET's `Html.ActionLink`.
+```vb
+If Not IsEmpty(where_kvarray) then 
+    sql = sql & " WHERE " 
+    dim where_keys, where_values 
+    KVUnzip where_kvarray, where_keys, where_values 
+
+    dim i 
+    For i = 0 to UBound(where_keys) 
+        If i > 0 then sql = sql & " AND " 
+        sql = sql & " " & where_keys(i) & " " 
+    Next 
+End If 
+
+...
+
+dim rs : set rs = DAL.Query(sql, where_values) 
+set Find = ProductList(rs) 
+```
 
 ### Views
 
