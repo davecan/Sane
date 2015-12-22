@@ -223,6 +223,22 @@ kvarray(4) = "FavoriteColor"
 kvarray(5) = "Blue"
 ```
 
+But in reality you would never write it like that, instead you would use the inline `Array` constructor like this:
+
+```vb
+dim params : params = Array("Name", "Bob", "Age", 35, "FavoriteColor", "Blue")
+```
+
+Or for more readability:
+
+```vb
+dim params : params = Array( _
+    "Name", "Bob",           _
+    "Age", 35,               _
+    "FavoriteColor", "Blue"  _
+)
+```
+
 To iterate over this array step by 2 and use `KeyVal` to get the current key and value:
 
 ```vb
