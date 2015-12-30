@@ -9,6 +9,7 @@ Major features distinguishing this framework include:
 * Extensive use of linked lists and iterators
 * Enumerable methods like `All/Any` boolean tests, `Min/Max/Sum`, `Map/Select` for projections, and `Where` for filters, with basic lambda-style expressions supported
 * Database migrations with `Up` and `Down` steppable migrations
+* OWASP Top 10 mitigations
 * Chocolate gravy
 
 Sane is licensed under the terms of GPLv3.
@@ -557,6 +558,16 @@ that a string start with the letter "A" you would create a `StartsWithLetterAVal
 * Exposed access to current controller/action names: `MVC.ControllerName`, `MVC.ActionName`
 * Redirect via GET or POST: `MVC.RedirectTo(controller_name, action_name)` or `MVC.RedirectToActionPOST(action_name)` with `*Ext` variants
     * POST generates dynamic client-side form automatically submitted via JQuery
+
+### OWASP Top 10 Mitigations
+
+The framework provides tools to help mitigate the following three items items from the OWASP Top 10:
+
+* Injection: The `Database_Class` support parameterized queries.
+* Cross-Site Scripting: Several helper methods automatically encode output, and the `H()` method is provided for simple encoding of all other output.
+* Cross-Site Request Forgery: The [`HtmlSecurity` helper](Framework/MVC/lib.HTMLSecurity.asp) provides per-form and per-site nonce checks to mitigate this threat.
+
+The remaining seven vulnerabilities are mostly or wholly the responsibility of the developer and/or administrator.
 
 ### "Generally Consistent API"
 
