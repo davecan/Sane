@@ -7,7 +7,7 @@ Major features distinguishing this framework include:
 
 * Automapper functionality, allowing mapping recordsets to domain objects (and objects to objects etc)
 * Extensive use of linked lists and iterators
-* Enumerable methods like `All/Any`, `Min/Max`, `Map`, and `Where` with basic lambda-style expressions supported
+* Enumerable methods like `All/Any` boolean tests, `Min/Max/Sum`, `Map/Select` for projections, and `Where` for filters, with basic lambda-style expressions supported
 * Database migrations with `Up` and `Down` steppable migrations
 * Chocolate gravy
 
