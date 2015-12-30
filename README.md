@@ -11,6 +11,8 @@ Major features distinguishing this framework include:
 * Database migrations with `Up` and `Down` steppable migrations
 * Chocolate gravy
 
+Sane is licensed under the terms of GPLv3.
+
 *Note:* This framework was extracted from a real-world internal workflow routing project, so it has a few rough edges.
 
 **But aren't there other MVC-style frameworks?**
