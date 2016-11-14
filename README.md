@@ -5,22 +5,47 @@ folder location, but that location is somewhat configurable.
 
 Major features distinguishing this framework include:
 
+* Extensive use of domain model and view model classes
 * Automapper functionality, allowing mapping recordsets to domain objects (and objects to objects etc)
 * Extensive use of linked lists and iterators
 * Enumerable methods like `All/Any` boolean tests, `Min/Max/Sum`, `Map/Select` for projections, and `Where` for filters, with basic lambda-style expressions supported
-* Database migrations with `Up` and `Down` steppable migrations
+* Database migrations with `Up` and `Down` steppable migrations -- version controlling database changes
 * OWASP Top 10 mitigations
+* Use of a key-value array data structure to easily pass key-value pairs between methods without creating a `Scripting.Dictionary` object each time
+* Tons of HTML helpers, many of which use the `KVArray` and its helper methods to make building HTML easy
+* Form state serialization baked in -- easily serialize/deserialize an entire form to/from the session in one line, for preserving state when returning forms to the user to fix validation errors
 * Chocolate gravy
+
+**All of this was written in VBScript. Really.**
 
 Sane is licensed under the terms of GPLv3.
 
 *Note:* This framework was extracted from a real-world internal workflow routing project, so it has a few rough edges.
 
-**But aren't there other MVC-style frameworks?**
+## Aren't there other MVC-style frameworks?
 
 "There are many like it, but this one is mine."
 
 ![alt text](http://www.gunaxin.com/wp-content/uploads/2010/02/FMJ-M14-560x420.jpg "")
+
+## But... why??
+
+Mostly because it was an interesting project that pushes the limits of Classic ASP. The vast majority of developers hate on VBScript and Classic ASP, mostly with good reason.
+Many of the issues that plague Classic ASP stem from the constraints of the time in which it was developed, the mid-1990s.
+Developers were unable to use what today are considered fundamental practices (widely using classes, etc) because the
+language was not designed to execute in a manner we would call "fast" and using these practices would cause the application
+to bog down and crash. Because of this the ASP community was forced to use ASP the same way PHP was used -- as an inline
+page-based template processor, not a full application framework in its own right. Plus, let's be honest, Microsoft
+marketed ASP at everyone regardless of skill level, and most of the tutorials found online were horrible and encouraged 
+horribly bad practices.
+
+Today we know better, and thanks to Moore's Law computing power has risen roughly 500-fold since the mid-90s, so we can
+afford to do things that were unthinkable a few years back.
+
+This framework was extracted from a real project that was built in this fashion. It worked quite well, and there should be
+no reason (functionally speaking) that it shouldn't work as a viable application framework. That said, realistically if we
+need to develop an application today we would use a modern framework such as .NET MVC or one of its competitors, so this is
+really just here in case it is helpful to someone else. Plus it was fun to build. :)
 
 ## Installation
 
@@ -37,123 +62,6 @@ default action, `Index`.
 ## Features
 
 A few of the features below have corresponding ASPUnit tests. Find them in the [Tests directory](Tests).
-
-### Database Migrations
-
-```vb
-Class Migration_01_Create_Orders_Table
-    Public Migration
-
-    Public Sub Up
-        Migration.Do "create table Orders " &_
-                     "(OrderNumber varchar(10) not null, DateOrdered datetime, CustomerName varchar(50))"
-    End Sub
-    
-    Public Sub Down
-        Migration.Do "drop table Orders"
-    End Sub
-End Class
-
-Migrations.Add "Migration_01_Create_Orders_Table"
-```
-
-Migrations can be stepped up and down via web interface located at [`migrate.asp`](Framework/Data/Migrations/migrate.asp). `Migration.Do` executes SQL commands. Migrations are processed in the order loaded. Recommend following a structured naming scheme as shown above for easy ordering. There are a few special commands, such as
-`Migration.Irreversible` that let you stop a down migration from proceeding, etc.
-
-The real-world project from which the framework was extracted contained approximately 3 dozen migrations, so it worked very well
-for versioning the DB during development.
-
-*Note: the migrations web interface is very basic and non-pretty*
-
-**Dependency:** To use the migrations feature you must first create the table `meta_migrations` using the script [`! Create Migrations Table.sql`](Sane/Framework/Data/Migrations/! Create Migrations Table.sql).
-
-### Domain Models
-
-```asp
-<%
-Class OrderModel_Class
-    Public Validator
-    Public OrderNumber, DateOrdered, CustomerName, LineItems
-    
-    Public Property Get SaleTotal
-        SaleTotal = Enumerable(LineItems).Sum("item_.Subtotal")  ' whaaaa?
-    End Property
-    
-    Public Sub Class_Initialize
-        ValidatePattern   Me, OrderNumber, "^\d{9}[\d|X]$", "Order number format is incorrect."
-        ValidateExists    Me, DateOrdered,    "DateOrdered cannot be blank."
-        ValidateExists    Me, CustomerName,   "Customer name cannot be blank."
-    End Sub
-End Class
-
-Class OrderLineItemModel_Class
-    Public ProductName, Price, Quantity, Subtotal
-End Class
-%>
-```
-
-### Domain Repositories
-
-Domain models can be built by converting an ADO Recordset into a linked list of domain models via Automapper-style transforms. [Say Whaaat?](https://www.youtube.com/watch?v=bdxVcv6M6kE&t=2)
-
-```vb
-Class OrderRepository_Class
-    Public Function GetAll()
-        dim sql : sql = "select OrderNumber, DateOrdered, CustomerName from Orders"
-        dim rs : set rs = DAL.Query(sql, empty)  'optional second parameter, can be scalar or array of binds
-        
-        dim list : set list = new LinkedList_Class
-        Do until rs.EOF
-            list.Push Automapper.AutoMap(rs, new OrderModel_Class)      ' keanuwhoa.jpg
-            rs.MoveNext
-        Loop
-        
-        set GetAll = list
-        Destroy rs        ' no passing around recordsets, no open connections to deal with
-    End Function
-End Class
-
-' Convenience wrapper lazy-loads the repository
-dim OrderRepository__Singleton
-Function OrderRepository()
-    If IsEmpty(OrderRepository__Singleton) then
-        set OrderRepository__Singleton = new OrderRepository_Class
-    End If
-    set OrderRepository = OrderRepository__Singleton
-End Function
-```
-
-The use of the `empty` keyword is a common approach taken by this framework. A common complaint of VBScript is that it does not
-allow optional parameters. While this is technically true it is easy to work around, yet virtually every example found online
-involves passing empty strings, or null values, or a similar approach. Using the built-in VBScript keyword `empty` is a semantically-meaningful way to handle optional parameters, making it clear that we specifically intended to ignore the optional parameter. In this case the `DAL.Query` method accepts two parameters, the SQL query and an optional second parameter containing bind values. The second parameter can be either a single value as in `DAL.Query("select a from b where a = ?", "foo")` or an array of binds e.g. 
-`DAL.Query("select a from b where a = ? and c = ?", Array("foo", "bar")`. In the above example it is explicitly ignored since there are no bind variables in the SQL.
-
-In this example the `DAL` variable is simply an instance
-of the `Database_Class` from `lib.Data.asp`. In the original project the DAL was a custom class that acted as an entry point for
-a set of lazy-loaded `Database_Class` instances, allowing data to be shared and moved between databases during the workflow.
-
-The `Automapper` object is a VBScript class that attempts to map each field in the source object to a corresponding field in the
-target object. The source object can be a recordset or a custom class. The function can map to a new or existing object. The
-`Automapper` object contains three methods: `AutoMap` which attempts to map all properties; `FlexMap` which allows you to choose
-a subset of properties to map, e.g. `Automapper.FlexMap(rs, new OrderModel_Class, array("DateOrdered", "CustomerName"))`
-will only copy the two specified fields from the source recordset to the new model instance; and `DynMap` which allows you to
-dynamically remap values, for a contrived example see:
-
-```vb
-Automapper.DynMap(rs, new OrderModel_Class, _
-                  array("target.CustomerName = UCase(src.CustomerName)", _
-                        "target.LikedOrder = src.CustomerWasHappy"))
-```
-
-Because both source and target can be any object with instance methods this is a very useful way to manage model binding in CRUD 
-methods, for example:
-
-```vb
-Public Sub CreatePost
-    dim new_product_model : set new_product_model = Automapper.AutoMap(Request.Form, new ProductModel_Class)
-    ... etc
-End Sub
-```
 
 ### Controllers
 
@@ -306,6 +214,129 @@ dim rs : set rs = DAL.Query(sql, where_values)
 set Find = ProductList(rs) 
 ```
 
+### Domain Models
+
+```asp
+<%
+Class OrderModel_Class
+    Public Validator
+    Public OrderNumber, DateOrdered, CustomerName, LineItems
+    
+    Public Property Get SaleTotal
+        SaleTotal = Enumerable(LineItems).Sum("item_.Subtotal")  ' whaaaa?
+    End Property
+    
+    Public Sub Class_Initialize
+        ValidatePattern   Me, OrderNumber, "^\d{9}[\d|X]$", "Order number format is incorrect."
+        ValidateExists    Me, DateOrdered,    "DateOrdered cannot be blank."
+        ValidateExists    Me, CustomerName,   "Customer name cannot be blank."
+    End Sub
+End Class
+
+Class OrderLineItemModel_Class
+    Public ProductName, Price, Quantity, Subtotal
+End Class
+%>
+```
+
+### Model Validations
+
+Validate models by calling the appropriate `Validate*` helper method from within the model's `Class_Initialize` constructor:
+
+```vb
+Private Sub Class_Initialize
+    ValidateExists      Me, "Name", "Name must exist."
+    ValidateMaxLength   Me, "Name", 10, "Name cannot be more than 10 characters long."
+    ValidateMinLength   Me, "Name", 2,  "Name cannot be less than 2 characters long."
+    ValidateNumeric     Me, "Quantity", "Quantity must be numeric."
+    ValidatePattern     Me, "Email", "[\w-]+@([\w-]+\.)+[\w-]+", "E-mail format is invalid."
+End Sub
+```
+
+Currently only `ValidateExists`, `ValidateMinLength`, `ValidateMaxLength`, `ValidateNumeric`, and `ValidatePattern` are included.
+What these helper methods actually do is create a new instance of the corresponding validation class and attach it to the model's
+`Validator` property. For example, when a model declares a validation using `ValidateExists Me, "Name", "Name must exist."` the
+following is what actually happens behind the scenes:
+
+```vb
+Sub ValidateExists(instance, field_name, message)
+    if not IsObject(instance.Validator) then set instance.Validator = new Validator_Class
+    instance.Validator.AddValidation new ExistsValidation_Class.Initialize(instance, field_name, message)
+End Sub
+```
+
+Here `Me` is the domain model instance. The `Validator_Class` is then used (via `YourModel.Validator`) to validate all registered
+validation rules, setting the `Errors` and `HasErrors` fields if errors are found. This is similar to the Observer pattern. The
+reason we pass `Me` is because this allows us to have a conveniently-worded method for each validation that has strong semantic
+meaning, e.g. `ValidateExists`. It takes a bit of code-jutsu but its worth it.
+
+Adding new validations is easy, just add a new validation class and helper `Sub`. For example, to add a validation that requires
+that a string start with the letter "A" you would create a `StartsWithLetterAValidation_Class` and helper method 
+`Sub ValidateStartsWithA(instance, field_name, message)`, then call it via `ValidateStartsWithA Me, "MyField", "Field must start with A."`
+
+### Domain Repositories
+
+Domain models can be built by converting an ADO Recordset into a linked list of domain models via Automapper-style transforms. [Say Whaaat?](https://www.youtube.com/watch?v=bdxVcv6M6kE&t=2)
+
+```vb
+Class OrderRepository_Class
+    Public Function GetAll()
+        dim sql : sql = "select OrderNumber, DateOrdered, CustomerName from Orders"
+        dim rs : set rs = DAL.Query(sql, empty)  'optional second parameter, can be scalar or array of binds
+        
+        dim list : set list = new LinkedList_Class
+        Do until rs.EOF
+            list.Push Automapper.AutoMap(rs, new OrderModel_Class)      ' keanuwhoa.jpg
+            rs.MoveNext
+        Loop
+        
+        set GetAll = list
+        Destroy rs        ' no passing around recordsets, no open connections to deal with
+    End Function
+End Class
+
+' Convenience wrapper lazy-loads the repository
+dim OrderRepository__Singleton
+Function OrderRepository()
+    If IsEmpty(OrderRepository__Singleton) then
+        set OrderRepository__Singleton = new OrderRepository_Class
+    End If
+    set OrderRepository = OrderRepository__Singleton
+End Function
+```
+
+The use of the `empty` keyword is a common approach taken by this framework. A common complaint of VBScript is that it does not
+allow optional parameters. While this is technically true it is easy to work around, yet virtually every example found online
+involves passing empty strings, or null values, or a similar approach. Using the built-in VBScript keyword `empty` is a semantically-meaningful way to handle optional parameters, making it clear that we specifically intended to ignore the optional parameter. In this case the `DAL.Query` method accepts two parameters, the SQL query and an optional second parameter containing bind values. The second parameter can be either a single value as in `DAL.Query("select a from b where a = ?", "foo")` or an array of binds e.g. 
+`DAL.Query("select a from b where a = ? and c = ?", Array("foo", "bar")`. In the above example it is explicitly ignored since there are no bind variables in the SQL.
+
+In this example the `DAL` variable is simply an instance
+of the `Database_Class` from `lib.Data.asp`. In the original project the DAL was a custom class that acted as an entry point for
+a set of lazy-loaded `Database_Class` instances, allowing data to be shared and moved between databases during the workflow.
+
+The `Automapper` object is a VBScript class that attempts to map each field in the source object to a corresponding field in the
+target object. The source object can be a recordset or a custom class. The function can map to a new or existing object. The
+`Automapper` object contains three methods: `AutoMap` which attempts to map all properties; `FlexMap` which allows you to choose
+a subset of properties to map, e.g. `Automapper.FlexMap(rs, new OrderModel_Class, array("DateOrdered", "CustomerName"))`
+will only copy the two specified fields from the source recordset to the new model instance; and `DynMap` which allows you to
+dynamically remap values, for a contrived example see:
+
+```vb
+Automapper.DynMap(rs, new OrderModel_Class, _
+                  array("target.CustomerName = UCase(src.CustomerName)", _
+                        "target.LikedOrder = src.CustomerWasHappy"))
+```
+
+Because both source and target can be any object with instance methods this is a very useful way to manage model binding in CRUD 
+methods, for example:
+
+```vb
+Public Sub CreatePost
+    dim new_product_model : set new_product_model = Automapper.AutoMap(Request.Form, new ProductModel_Class)
+    ... etc
+End Sub
+```
+
 ### Views
 
 Because it is `#include`d into the controller action, the view has full access to the controller's `Model` instance. Here it accesses
@@ -355,19 +386,6 @@ The `MVC.RequireModel` method provides the ability to strongly-type the view, mi
 </table>
 ```
 
-### Database Class
-
-Wraps connection details and access to the database. In addition to the examples already shown it can also handle:
-
-* Execution of SQL without return values: `DAL.Execute "delete from Orders where OrderId = ?", id`
-* Paged queries: `set rs = DAL.PagedQuery(sql, params, per_page, page_num)` 
-    * See the demo [ProductsController.asp](Demo/App/Controllers/Products/ProductsController.asp) for a usage example
-    * Note: This uses recordset paging, you must implement your own server-side paging if needed.
-* Transactions: `DAL.BeginTransaction`, `DAL.CommitTransaction`, and `DAL.RollbackTransaction`
-
-The class also automatically closes and destroys the wrapped connection via the `Class_Terminate` method which is called when the
-class is ready for destruction.
-
 ### Enumerable Builder
 
 Provides chainable lambda-style calls on a list. From the unit tests:
@@ -383,6 +401,48 @@ another special instance variable that represents the current item being process
 item in the list and executes the passed "lambda" expression. The result of `Map` is a new instance of `EnumerableHelper_Class`
 containing a list of `ChainedExample_Class` instances built by the expression. This enumerable is then processed by `Max` to
 return a single value, the maximum length.
+
+### Database Class
+
+Wraps connection details and access to the database. In addition to the examples already shown it can also handle:
+
+* Execution of SQL without return values: `DAL.Execute "delete from Orders where OrderId = ?", id`
+* Paged queries: `set rs = DAL.PagedQuery(sql, params, per_page, page_num)` 
+    * See the demo [ProductsController.asp](Demo/App/Controllers/Products/ProductsController.asp) for a usage example
+    * Note: This uses recordset paging, you must implement your own server-side paging if needed.
+* Transactions: `DAL.BeginTransaction`, `DAL.CommitTransaction`, and `DAL.RollbackTransaction`
+
+The class also automatically closes and destroys the wrapped connection via the `Class_Terminate` method which is called when the
+class is ready for destruction.
+
+### Database Migrations
+
+```vb
+Class Migration_01_Create_Orders_Table
+    Public Migration
+
+    Public Sub Up
+        Migration.Do "create table Orders " &_
+                     "(OrderNumber varchar(10) not null, DateOrdered datetime, CustomerName varchar(50))"
+    End Sub
+    
+    Public Sub Down
+        Migration.Do "drop table Orders"
+    End Sub
+End Class
+
+Migrations.Add "Migration_01_Create_Orders_Table"
+```
+
+Migrations can be stepped up and down via web interface located at [`migrate.asp`](Framework/Data/Migrations/migrate.asp). `Migration.Do` executes SQL commands. Migrations are processed in the order loaded. Recommend following a structured naming scheme as shown above for easy ordering. There are a few special commands, such as
+`Migration.Irreversible` that let you stop a down migration from proceeding, etc.
+
+The real-world project from which the framework was extracted contained approximately 3 dozen migrations, so it worked very well
+for versioning the DB during development.
+
+*Note: the migrations web interface is very basic and non-pretty*
+
+**Dependency:** To use the migrations feature you must first create the table `meta_migrations` using the script [`! Create Migrations Table.sql`](Sane/Framework/Data/Migrations/! Create Migrations Table.sql).
 
 ### Debugging Helpers
 
@@ -503,41 +563,6 @@ Public Sub CreatePost
 End Sub
 ```
 
-### Model Validations
-
-Validate models by calling the appropriate `Validate*` helper method from within the model's `Class_Initialize` constructor:
-
-```vb
-Private Sub Class_Initialize
-    ValidateExists      Me, "Name", "Name must exist."
-    ValidateMaxLength   Me, "Name", 10, "Name cannot be more than 10 characters long."
-    ValidateMinLength   Me, "Name", 2,  "Name cannot be less than 2 characters long."
-    ValidateNumeric     Me, "Quantity", "Quantity must be numeric."
-    ValidatePattern     Me, "Email", "[\w-]+@([\w-]+\.)+[\w-]+", "E-mail format is invalid."
-End Sub
-```
-
-Currently only `ValidateExists`, `ValidateMinLength`, `ValidateMaxLength`, `ValidateNumeric`, and `ValidatePattern` are included.
-What these helper methods actually do is create a new instance of the corresponding validation class and attach it to the model's
-`Validator` property. For example, when a model declares a validation using `ValidateExists Me, "Name", "Name must exist."` the
-following is what actually happens behind the scenes:
-
-```vb
-Sub ValidateExists(instance, field_name, message)
-    if not IsObject(instance.Validator) then set instance.Validator = new Validator_Class
-    instance.Validator.AddValidation new ExistsValidation_Class.Initialize(instance, field_name, message)
-End Sub
-```
-
-Here `Me` is the domain model instance. The `Validator_Class` is then used (via `YourModel.Validator`) to validate all registered
-validation rules, setting the `Errors` and `HasErrors` fields if errors are found. This is similar to the Observer pattern. The
-reason we pass `Me` is because this allows us to have a conveniently-worded method for each validation that has strong semantic
-meaning, e.g. `ValidateExists`. It takes a bit of code-jutsu but its worth it.
-
-Adding new validations is easy, just add a new validation class and helper `Sub`. For example, to add a validation that requires
-that a string start with the letter "A" you would create a `StartsWithLetterAValidation_Class` and helper method 
-`Sub ValidateStartsWithA(instance, field_name, message)`, then call it via `ValidateStartsWithA Me, "MyField", "Field must start with A."`
-
 ### Numerous Helpers
 
 * `put` wraps `Response.Write` and varies its output based on the passed type, with special output for lists and arrays.
@@ -601,25 +626,6 @@ Public Sub RedirectToExt(controller_name, action_name, params)
     Response.Redirect Routes.UrlTo(controller_name, action_name, params)
 End Sub
 ```
-
-## But... why??
-
-Mostly because it was an interesting project that pushes the limits of Classic ASP. The vast majority of developers hate on VBScript and Classic ASP, mostly with good reason.
-Many of the issues that plague Classic ASP stem from the constraints of the time in which it was developed, the mid-1990s.
-Developers were unable to use what today are considered fundamental practices (widely using classes, etc) because the
-language was not designed to execute in a manner we would call "fast" and using these practices would cause the application
-to bog down and crash. Because of this the ASP community was forced to use ASP the same way PHP was used -- as an inline
-page-based template processor, not a full application framework in its own right. Plus, let's be honest, Microsoft
-marketed ASP at everyone regardless of skill level, and most of the tutorials found online were horrible and encouraged 
-horribly bad practices.
-
-Today we know better, and thanks to Moore's Law computing power has risen roughly 500-fold since the mid-90s, so we can
-afford to do things that were unthinkable a few years back.
-
-This framework was extracted from a real project that was built in this fashion. It worked quite well, and there should be
-no reason (functionally speaking) that it shouldn't work as a viable application framework. That said, realistically if we
-need to develop an application today we would use a modern framework such as .NET MVC or one of its competitors, so this is
-really just here in case it is helpful to someone else. Plus it was fun to build. :)
 
 ## Thanks
 
