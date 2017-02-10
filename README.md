@@ -24,7 +24,7 @@ Sane is licensed under the terms of GPLv3.
 
 ## Code Examples: Products
 
-This gives a quick overview of the code flow for one controller and the models and views it uses:
+This gives a quick overview of the code flow for one controller and the models and views it uses. It shows how much of the functionality listed above is actually used together.
 
 * [ProductsController](Demo/App/Controllers/Products/ProductsController.asp)
 * [ProductsRepository with domain model](Demo/App/DomainModels/ProductRepository.asp)
