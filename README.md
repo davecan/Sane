@@ -5,7 +5,7 @@ folder location, but that location is somewhat configurable.
 
 Major features distinguishing this framework include:
 
-* Extensive use of domain model and view model classes
+* Extensive use of domain repositories with domain model classes, and separate view model classes
 * Automapper functionality, allowing mapping recordsets to domain objects (and objects to objects etc)
 * Extensive use of linked lists and iterators
 * Enumerable methods like `All/Any` boolean tests, `Min/Max/Sum`, `Map/Select` for projections, and `Where` for filters, with basic lambda-style expressions supported
@@ -21,6 +21,16 @@ Major features distinguishing this framework include:
 Sane is licensed under the terms of GPLv3.
 
 *Note:* This framework was extracted from a real-world internal workflow routing project, so it has a few rough edges.
+
+## Code Examples: Products
+
+This gives a quick overview of the code flow for one controller and the models and views it uses:
+
+* [ProductsController](Demo/App/Controllers/Products/ProductsController.asp)
+* [ProductsRepository with domain model](Demo/App/DomainModels/ProductRepository.asp)
+* [Products view models](Demo/App/ViewModels/ProductsViewModels.asp)
+* [Products Index view](Demo/App/Views/Products/Index.asp)
+* [Product Edit view](Demo/App/Views/Products/Edit.asp)
 
 ## Aren't there other MVC-style frameworks?
 
