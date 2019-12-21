@@ -10,9 +10,9 @@
 
 ## Enumerables (with Lambdas!)
 
-![](https://i.imgur.com/klkb3ha.png)
+![](https://i.imgur.com/uSNkEVy.png)
 
-![](https://i.imgur.com/1JN5dqN.png)
+![](https://i.imgur.com/klkb3ha.png)
 
 ## Trivial Viewmodel Iteration
 
