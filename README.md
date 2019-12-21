@@ -8,6 +8,12 @@
 
 ![](https://i.imgur.com/kGEvDsZ.png)
 
+## Enumerables (with Lambdas!)
+
+![](https://i.imgur.com/klkb3ha.png)
+
+![](https://i.imgur.com/1JN5dqN.png)
+
 ## Trivial Viewmodel Iteration
 
 ![](https://i.imgur.com/1OUprAV.png)
