@@ -1,6 +1,6 @@
 # Sane, the dev-friendly Classic ASP MVC framework
 
-This is all written in 100% VBScript for Classic ASP. 🙂
+This is an MVC framework all written in 100% VBScript for Classic ASP. 🙂
 
 ## Controller Example
 
