@@ -1,5 +1,7 @@
 # Sane, the dev-friendly Classic ASP MVC framework
 
+This is all written in 100% VBScript for Classic ASP. 🙂
+
 ## Controller Example
 
 ![](https://i.imgur.com/wRRZBTy.png)
@@ -24,7 +26,11 @@
 
 ## Database Migrations
 
-![](https://i.imgur.com/pQS28ER.png)
+![](https://i.imgur.com/Mg690iG.png)
+
+## Irreversible Migrations Too
+
+![](https://i.imgur.com/eTtma3m.png)
 
 # Overview
 
